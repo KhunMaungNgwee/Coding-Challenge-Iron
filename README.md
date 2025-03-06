@@ -1,6 +1,4 @@
-# Coding-Challenge-Iron
-
-# C# Coding Challenge: Old Mobile Phone Keypad Implementation
+# C# Coding Challenge Iron: Old Phone Keypad Implementation
 
 ## Summary
 
