@@ -4,101 +4,143 @@ using System.Text;
 
 namespace OldPhonePad
 {
+        //summary:
+        //  Implements conversion functionality for old phone keypad input sequences.
     public class OldPhoneKeypad : IOldPhoneKeypad
     {
+        // Summary:
+        //   This method converts a string representing multi-tap phone keypad input into the corresponding text output.
+        //   The input simulates a traditional phone keypad where each digit (2-9) corresponds to a set of letters.
+        //   Consecutive presses of the same key cycle through the letters associated with that key.
+        //   Spaces are used to separate presses of the same key when entering different characters.
+        //   '*' acts as a backspace to remove the last character entered.
+        //   The input must end with '#' to indicate the end of input.
+        
+        // Parameters:
+        //   input - The input string containing digits (0-9), spaces, '*', and ending with '#'.
+        //           The sequence before the first '#' must consist only of digits, spaces, and '*'.
+        //           The input must end with '#' to be valid.
+        
+        // Returns:
+        //   A string representing the text output after processing the keypad input.
+        //
+        // Exceptions:
+        //   InvalidOperationException - Thrown if:
+        //     - The input does not end with '#'.
+        //     - The sequence before the first '#' contains characters other than digits (0-9), spaces, and '*'.
         public string ConvertKeypadInput(string input)
         {
             if (!input.EndsWith("#"))
-                throw new InvalidOperationException("Send key was not detected in input sequence.");
+                throw new InvalidOperationException("Input must end with send key '#'.");
 
-            var sb = new StringBuilder();
-            char lastChar = '\0';
-            int pressCount = 0;
+            StringBuilder outputBuilder = new StringBuilder();
+            char? currentKey = null;
+            int keyPressCount = 0;
 
-            int sendIndex = input.IndexOf('#');
-            string processedInput = sendIndex >= 0 ? input.Substring(0, sendIndex) : input;
+            int sendKeyIndex = input.IndexOf('#');
+            string processedInput = sendKeyIndex >= 0 ?
+                input.Substring(0, sendKeyIndex) :
+                input;
 
-            foreach (var currentChar in processedInput)
+            foreach (char currentChar in processedInput)
             {
                 if (currentChar == ' ')
                 {
-                    if (lastChar != '\0')
+                    if (currentKey.HasValue)
                     {
-                        sb.Append(GetCharacterFromKey(lastChar, pressCount));
-                        lastChar = '\0';
-                        pressCount = 0;
+                        AppendCurrentCharacter(outputBuilder, currentKey.Value, keyPressCount);
+                        currentKey = null;
+                        keyPressCount = 0;
                     }
                 }
                 else if (currentChar == '*')
                 {
-                    if (lastChar != '\0')
+                    if (currentKey.HasValue)
                     {
-                        sb.Append(GetCharacterFromKey(lastChar, pressCount));
-                        lastChar = '\0';
-                        pressCount = 0;
+                        AppendCurrentCharacter(outputBuilder, currentKey.Value, keyPressCount);
+                        currentKey = null;
+                        keyPressCount = 0;
                     }
 
-                    if (sb.Length > 0)
+                    if (outputBuilder.Length > 0)
                     {
-                        sb.Length--;
+                        outputBuilder.Length--;
                     }
                 }
                 else if (char.IsDigit(currentChar))
                 {
-                    if (lastChar == currentChar)
+                    if (currentKey == currentChar)
                     {
-                        pressCount++;
+                        keyPressCount++;
                     }
                     else
                     {
-                        if (lastChar != '\0')
+                        if (currentKey.HasValue)
                         {
-                            sb.Append(GetCharacterFromKey(lastChar, pressCount));
+                            AppendCurrentCharacter(outputBuilder, currentKey.Value, keyPressCount);
                         }
-
-                        lastChar = currentChar;
-                        pressCount = 1;
+                        currentKey = currentChar;
+                        keyPressCount = 1;
                     }
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Invalid character '{currentChar}' in input.");
+                    throw new InvalidOperationException(
+                        $"Invalid character '{currentChar}' in input. Only digits 0-9, *, #, and spaces are allowed.");
                 }
             }
 
-            if (lastChar != '\0')
+            if (currentKey.HasValue)
             {
-                sb.Append(GetCharacterFromKey(lastChar, pressCount));
+                AppendCurrentCharacter(outputBuilder, currentKey.Value, keyPressCount);
             }
 
-            return sb.ToString();
+            return outputBuilder.ToString();
         }
 
+        //summary:
+        //  Maps a key and press count to its corresponding character.
+        //  param name "key" is Numeric key character.
+        //  param name "count" is Number of presses.
+
+        //returns
+        //  Mapped character
+        //  exception "InvalidOperationException" is Throws for unsupported keys.
         private static char GetCharacterFromKey(char key, int count)
         {
-            var keyStr = key.ToString();
-            if (!Keypad.ContainsKey(keyStr))
-                throw new InvalidOperationException($"Key '{key}' is not supported.");
+            string keyString = key.ToString();
 
-            var keyChars = Keypad[keyStr];
-            int index = (count - 1) % keyChars.Length;
-            return keyChars[index];
+            if (!Keypad.ContainsKey(keyString))
+                throw new InvalidOperationException($"Key '{key}' is not supported by the keypad.");
+
+            char[] keyCharacters = Keypad[keyString];
+            int characterIndex = (count - 1) % keyCharacters.Length;
+            return keyCharacters[characterIndex];
         }
+
+        //summary:
+        //  Helper method to safely append characters to the output buffer.
+        private static void AppendCurrentCharacter(StringBuilder outputBuilder, char key, int count)
+        {
+            char character = GetCharacterFromKey(key, count);
+            outputBuilder.Append(character);
+        }
+
+       //summary:
+       //  T9 keypad character mapping following standard phone keypad layout.
 
         private static readonly Dictionary<string, char[]> Keypad = new()
         {
-            { "1", new[] { '&', '\'', '(' } },
-            { "2", new[] { 'A', 'B', 'C' } },
-            { "3", new[] { 'D', 'E', 'F' } },
-            { "4", new[] { 'G', 'H', 'I' } },
-            { "5", new[] { 'J', 'K', 'L' } },
-            { "6", new[] { 'M', 'N', 'O' } },
-            { "7", new[] { 'P', 'Q', 'R', 'S' } },
-            { "8", new[] { 'T', 'U', 'V' } },
-            { "9", new[] { 'W', 'X', 'Y', 'Z' } },
-            { "0", new[] { ' ' } }
+            { "1", new[] { '&', '\'', '(' } },      
+            { "2", new[] { 'A', 'B', 'C' } },       
+            { "3", new[] { 'D', 'E', 'F' } },       
+            { "4", new[] { 'G', 'H', 'I' } },       
+            { "5", new[] { 'J', 'K', 'L' } },       
+            { "6", new[] { 'M', 'N', 'O' } },       
+            { "7", new[] { 'P', 'Q', 'R', 'S' } },  
+            { "8", new[] { 'T', 'U', 'V' } },      
+            { "9", new[] { 'W', 'X', 'Y', 'Z' } }, 
+            { "0", new[] { ' ' } }                  
         };
     }
-
- 
 }
