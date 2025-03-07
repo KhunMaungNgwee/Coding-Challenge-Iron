@@ -1,6 +1,4 @@
-# Coding-Challenge-Iron
-
-# C# Coding Challenge: Old Mobile Phone Keypad Implementation
+# C# Coding Challenge Iron: Old Phone Keypad Implementation
 
 ## Summary
 
@@ -29,11 +27,9 @@ This solution contains two projects: OldPhoneKeypad, and OldPhoneKeypadTests.
 
 ### OldPhone
 
-In this console application you will find the implementation of the business logic wrapped up in a class called *OldPhoneKeypad*. 
+Since the OldPhoneKeypad method is static, it was decided to implement it in a separate class. This approach allows for easier testing of OldPhoneKeypad. Additionally, if dependencies are required in the future, they can be injected using Dependency Injection (DI), and a library such as Moq could be used within the testing project.
 
-As the OldPhoneKeypad method is static, a decision was made to implement this in its own class.  This allows for easier testing of the OldPhoneKeypad and later, should any dependencies be required they could be injected with a DI and a library such as Moq could be used  within the testing project.
-
-The implementation of OldPhoneKeypad is centred around iterating over the characters in the input string, counting successive characters and performing a lookup in the KeyPad dictionary and adding to a String Builder.  
+The implementation of OldPhoneKeypad revolves around iterating over the characters in the input string, counting successive characters, performing a lookup in the KeyPad dictionary, and appending the result to a StringBuilder.
 
 We can also take the appropriate action when the following characters have been detected.
 
