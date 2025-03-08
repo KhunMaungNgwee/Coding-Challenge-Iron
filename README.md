@@ -1,9 +1,8 @@
 # C# Coding Challenge Iron: Old Phone Keypad Implementation
 
 ## Summary
-
 This coding challenge involved implementing the logic of an old Nokia-style mobile phone keypad, where each number key corresponds to multiple letters. Repeated presses of a key cycle through its associated letters. The user must pause (represented by a space in the input) to type consecutive characters from the same key.
-
+ (my test photo also in the readme file)
 Each button has a number to identify it and pressing a button multiple times will cycle through the letters on it allowing each button to represent more than one letter.
 
 *For example, pressing 2 once will return ‘A’ but pressing twice in succession will return ‘B’.*
@@ -63,7 +62,9 @@ OldPhoneKeypad(“227*#”) => output: B
 OldPhoneKeypad(“4433555 555666#”) => output: HELLO 
 OldPhoneKeypad(“8 88777444666*664#”) => output: TURING
 ```
-
+## Tested Photo
+https://drive.google.com/file/d/18Qrodu5-FD-pbDKddy5jYGUynVMGa0jx/view?usp=sharing
+https://drive.google.com/file/d/1GkzHwl4UWk3o0j-GCpea2SlTuChDkAYw/view?usp=sharing
 
 ## Getting Started
 
